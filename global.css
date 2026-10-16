@@ -1,0 +1,456 @@
+
+:root {
+    /* Colors */
+    --background: #090d1d;
+    --surface: #151a32;
+    --border: #6555d6;
+
+    --primary: #aa91ff;
+    --accent: #40d5ff;
+    --text: #f5f2ff;
+    --muted: #969cbd;
+
+    --danger: #ff4769;
+    --warning: #ffd34e;
+    --success: #72e8a5;
+
+    /* Game Settings */
+    --sprite-size: 32px;
+    --game-width: 700px;
+    --game-height: 480px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: var(--background);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+button:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+}
+
+/* GAME CONTAINER */
+
+.game-container {
+    width: 100%;
+    max-width: var(--game-width);
+    margin: 0 auto;
+}
+
+/* GAME HEADER */
+
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game-header h1 {
+    color: var(--primary);
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 18px rgba(170, 145, 255, 0.35);
+}
+
+.game-header p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* GAME HUD */
+
+.game-hud {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 16px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px 8px 0 0;
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.hud-item span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.hud-item strong {
+    color: var(--accent);
+    font-size: 26px;
+    font-weight: 800;
+}
+
+#health {
+    color: var(--danger);
+}
+
+#timer {
+    color: var(--accent);
+}
+
+/* GAME BOARD */
+
+.game-board {
+    position: relative;
+    width: 100%;
+    height: var(--game-height);
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 100%,
+            rgba(93, 57, 145, 0.25),
+            transparent 65%
+        ),
+        linear-gradient(
+            180deg,
+            #10152b 0%,
+            #0b1022 100%
+        );
+
+    border: 2px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Subtle stars in background */
+.game-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    background-image:
+        radial-gradient(#ffffff55 1px, transparent 1px),
+        radial-gradient(#a991ff55 1px, transparent 1px);
+
+    background-size:
+        85px 85px,
+        135px 135px;
+
+    background-position:
+        10px 20px,
+        45px 65px;
+
+    opacity: 0.3;
+}
+
+/* Defensive line */
+.game-board::after {
+    content: "";
+    position: absolute;
+    bottom: 48px;
+    left: 0;
+    right: 0;
+
+    border-top: 2px dashed rgba(100, 140, 255, 0.2);
+    pointer-events: none;
+}
+
+/* SPRITE BASE */
+
+.sprite {
+    position: absolute;
+    width: var(--sprite-size);
+    height: var(--sprite-size);
+
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+
+    will-change: left, top;
+}
+
+/* WIZARD */
+
+.wizard {
+    background-image: url("../assets/sprites/wizard.png");
+    background-position: 0 0;
+    z-index: 3;
+}
+
+/* CSS Shape Placeholder */
+.wizard.placeholder {
+    background: #59baff;
+    background-image: none !important;
+
+    clip-path: polygon(
+        50% 0%,
+        65% 30%,
+        85% 100%,
+        15% 100%,
+        35% 30%
+    );
+
+    filter: drop-shadow(0 0 5px #59baff);
+}
+
+/* ENEMIES */
+
+.enemy {
+    background-image: url("../assets/sprites/enemies.png");
+    background-position: 0 0;
+    z-index: 2;
+}
+
+/* CSS Shape Placeholder */
+.enemy.placeholder {
+    background: var(--danger);
+    background-image: none !important;
+
+    border: 2px solid #ff8298;
+    border-radius: 3px;
+
+    box-shadow: 0 0 8px rgba(255, 71, 105, 0.3);
+
+    animation: enemy-float 0.5s ease-in-out infinite alternate;
+}
+
+/* Enemy Floating Animation */
+@keyframes enemy-float {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(4px);
+    }
+}
+
+/* MAGIC SPELLS */
+
+.spell {
+    background-image: url("../assets/sprites/spells.png");
+    background-position: 0 0;
+    z-index: 4;
+}
+
+/* CSS Shape Placeholder */
+.spell.placeholder {
+    background: var(--accent);
+    background-image: none !important;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 8px var(--accent),
+        0 0 18px rgba(64, 213, 255, 0.5);
+
+    animation: spell-pulse 0.3s ease-in-out infinite alternate;
+}
+
+/* Spell Pulsing Animation */
+@keyframes spell-pulse {
+    from {
+        transform: scale(0.65);
+        opacity: 0.8;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* EXPLOSION EFFECTS */
+
+.effect {
+    background-image: url("../assets/sprites/effects.png");
+    background-position: 0 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* CSS Shape Placeholder */
+.effect.placeholder {
+    background: var(--warning);
+    background-image: none !important;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 12px var(--warning),
+        0 0 24px rgba(255, 211, 78, 0.5);
+
+    animation: explosion-burst 0.4s ease-out forwards;
+}
+
+/* Explosion Animation */
+@keyframes explosion-burst {
+    from {
+        transform: scale(0.3);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* GAME OVERLAY */
+
+.game-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+
+    padding: 24px;
+    text-align: center;
+
+    background: rgba(8, 10, 27, 0.92);
+    backdrop-filter: blur(5px);
+}
+
+.game-overlay.hidden {
+    display: none;
+}
+
+.game-overlay h2 {
+    color: var(--primary);
+    font-size: 32px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+
+    text-shadow: 0 0 18px rgba(170, 145, 255, 0.4);
+}
+
+.game-overlay p {
+    max-width: 360px;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* START / RESTART BUTTON */
+
+#start-button {
+    padding: 14px 32px;
+
+    background: var(--accent);
+    color: #0b1022;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#start-button:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+
+    box-shadow: 0 0 18px rgba(170, 145, 255, 0.4);
+}
+
+#start-button:active {
+    transform: translateY(0);
+}
+
+/* CONTROLS FOOTER */
+
+.game-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+
+    padding: 18px 5px;
+
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 600px) {
+    .game-header h1 {
+        font-size: 28px;
+    }
+
+    .game-hud {
+        padding: 12px 8px;
+    }
+
+    .hud-item strong {
+        font-size: 22px;
+    }
+
+    .game-board {
+        height: 420px;
+    }
+
+    .game-controls {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 400px) {
+    body {
+        padding: 10px;
+    }
+
+    .game-header h1 {
+        font-size: 24px;
+    }
+
+    .game-board {
+        height: 380px;
+    }
+
+    .game-overlay h2 {
+        font-size: 25px;
+    }
+}

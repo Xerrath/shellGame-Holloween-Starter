@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wizard Invaders</title>
+
+        <link rel="stylesheet" href="./global.css" type="text/css">
+    </head>
+    <body>
+        <main class="game-container">
+            <header class="game-header">
+                <h1>Wizard Invaders</h1>
+                <p>Defend the magical kingdom!</p>
+            </header>
+
+            <section class="game-hud">
+                <div class="hud-item">
+                    <span>Score</span>
+                    <strong id="score">0</strong>
+                </div>
+
+                <div class="hud-item">
+                    <span>Time</span>
+                    <strong id="timer">30</strong>
+                </div>
+
+                <div class="hud-item">
+                    <span>Health</span>
+                    <strong id="health">3</strong>
+                </div>
+            </section>
+
+            <section id="game-board" class="game-board">
+                <div id="enemy-container"></div>
+                <div id="spell-container"></div>
+                <div id="effect-container"></div>
+
+                <div id="wizard" class="sprite wizard"></div>
+
+                <div id="game-overlay" class="game-overlay">
+                    <h2 id="overlay-title">Wizard Invaders</h2>
+                    <p id="overlay-message">
+                        Destroy the invaders before time runs out!
+                    </p>
+                    <button id="start-button" type="button">
+                        Start Game
+                    </button>
+                </div>
+            </section>
+
+            <footer class="game-controls">
+                <p>Move: A / D or Arrow Keys</p>
+                <p>Cast Spell: Spacebar</p>
+            </footer>
+
+        <script src="./game.js"></script>
+    </body>
+</html>
