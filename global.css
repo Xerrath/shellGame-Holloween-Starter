@@ -15,9 +15,46 @@
     --success: #72e8a5;
 
     /* Game Settings */
-    --sprite-size: 32px;
     --game-width: 700px;
     --game-height: 480px;
+
+    /* Sprite sheet settings (JS overwrites these once each sheet loads) */
+    --wizard-width: 48px;
+    --wizard-height: 48px;
+    --wizard-frames: 1;
+    --wizard-duration: 1s;
+    --wizard-sheet: none;
+
+    --enemy-width: 48px;
+    --enemy-height: 48px;
+    --enemy-frames: 1;
+    --enemy-duration: 1s;
+    --enemy-sheet: none;
+
+    --spell-width: 24px;
+    --spell-height: 24px;
+    --spell-frames: 1;
+    --spell-duration: 1s;
+    --spell-sheet: none;
+
+    --effect-width: 48px;
+    --effect-height: 48px;
+    --effect-frames: 1;
+    --effect-duration: 0.4s;
+    --effect-sheet: none;
+
+    --wizard-two-width: 48px;
+    --wizard-two-height: 48px;
+    --wizard-two-frames: 1;
+    --wizard-two-duration: 1s;
+    --wizard-two-sheet: none;
+
+    --boss-width: 144px;
+    --boss-height: 144px;
+    --boss-frames: 1;
+    --boss-duration: 1s;
+    --boss-sheet: none;
+    --boss-color: #a64dff;
 }
 
 * {
@@ -118,8 +155,24 @@ button:focus-visible {
     color: var(--danger);
 }
 
+#level {
+    color: var(--warning);
+}
+
 #timer {
-    color: var(--accent);
+    color: var(--success);
+}
+
+/* Last 5 seconds: the timer turns red and pulses */
+#timer.low {
+    color: var(--danger);
+    animation: timer-pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes timer-pulse {
+    to {
+        transform: scale(1.2);
+    }
 }
 
 /* GAME BOARD */
@@ -173,7 +226,7 @@ button:focus-visible {
 .game-board::after {
     content: "";
     position: absolute;
-    bottom: 48px;
+    bottom: calc(var(--wizard-height) + 18px);
     left: 0;
     right: 0;
 
@@ -183,29 +236,72 @@ button:focus-visible {
 
 /* SPRITE BASE */
 
+/*
+    Every sprite sheet is one row of frames. JS measures each sheet and sets
+    --<type>-width, --<type>-height, --<type>-frames, --<type>-duration and
+    --<type>-sheet on :root. Each sprite class maps those to the short local
+    names below, so ONE @keyframes works for any sheet size and frame count.
+
+    STUDENTS: you do not add image paths in this file. To change a picture,
+    open game.js and look for the comments that say "ADD YOUR ... HERE".
+*/
 .sprite {
     position: absolute;
-    width: var(--sprite-size);
-    height: var(--sprite-size);
+    width: var(--w);
+    height: var(--h);
 
+    background-image: var(--sheet);
     background-repeat: no-repeat;
+    background-position: 0 0;
+
+    /* The whole strip, scaled so one frame is exactly --w by --h */
+    background-size: calc(var(--w) * var(--frames)) var(--h);
+
     image-rendering: pixelated;
 
+    /* steps(N) splits the timeline into N equal parts (100% / N each),
+       so each frame gets the same share no matter how many there are. */
+    animation: sprite-frames var(--duration) steps(var(--frames)) infinite;
+
     will-change: left, top;
+}
+
+/* Slide the strip left by its full width. With steps(N), it stops on each
+   frame: 0, -1 frame, -2 frames ... -(N - 1) frames, then loops. */
+@keyframes sprite-frames {
+    from {
+        background-position-x: 0;
+    }
+
+    to {
+        background-position-x: calc(var(--w) * var(--frames) * -1);
+    }
+}
+
+/* Hit flash for enemies and the wizard */
+.sprite.hit {
+    filter: brightness(2.5) saturate(0.4);
+    transition: filter 0.12s ease-out;
+}
+
+/* Missing sheet: drop the image and frame animation, show a CSS shape */
+.sprite.placeholder {
+    background-image: none;
 }
 
 /* WIZARD */
 
 .wizard {
-    background-image: url("../assets/sprites/wizard.png");
-    background-position: 0 0;
+    --w: var(--wizard-width);
+    --h: var(--wizard-height);
+    --frames: var(--wizard-frames);
+    --duration: var(--wizard-duration);
+    --sheet: var(--wizard-sheet);
     z-index: 3;
 }
 
-/* CSS Shape Placeholder */
 .wizard.placeholder {
     background: #59baff;
-    background-image: none !important;
 
     clip-path: polygon(
         50% 0%,
@@ -216,30 +312,54 @@ button:focus-visible {
     );
 
     filter: drop-shadow(0 0 5px #59baff);
+    animation: none;
+}
+
+/* PLAYER 2 WIZARD
+   Uses its own --wizard-two-* variables. If player 2 has no picture of
+   its own, it uses player 1's picture tinted orange so you can tell
+   them apart. */
+.wizard.player-two {
+    --w: var(--wizard-two-width);
+    --h: var(--wizard-two-height);
+    --frames: var(--wizard-two-frames);
+    --duration: var(--wizard-two-duration);
+    --sheet: var(--wizard-two-sheet);
+}
+
+.wizard.player-two:not(.own-sheet):not(.placeholder) {
+    filter: hue-rotate(160deg) saturate(1.4);
+}
+
+.wizard.player-two.placeholder {
+    background: #ff9f43;
+    filter: drop-shadow(0 0 5px #ff9f43);
+}
+
+.wizard.hit {
+    filter: brightness(2.5) saturate(0.4);
 }
 
 /* ENEMIES */
 
 .enemy {
-    background-image: url("./Images/1000003110.png");
-    background-position: 0 0;
+    --w: var(--enemy-width);
+    --h: var(--enemy-height);
+    --frames: var(--enemy-frames);
+    --duration: var(--enemy-duration);
+    --sheet: var(--enemy-sheet);
     z-index: 2;
 }
 
-/* CSS Shape Placeholder */
 .enemy.placeholder {
     background: var(--danger);
-    background-image: url("./Images/1000003110.png");
-
     border: 2px solid #ff8298;
     border-radius: 3px;
-
     box-shadow: 0 0 8px rgba(255, 71, 105, 0.3);
 
     animation: enemy-float 0.5s ease-in-out infinite alternate;
 }
 
-/* Enemy Floating Animation */
 @keyframes enemy-float {
     from {
         transform: translateY(0);
@@ -250,19 +370,30 @@ button:focus-visible {
     }
 }
 
-/* MAGIC SPELLS */
+/* CANDY SPELLS */
 
 .spell {
-    background-image: url("../assets/sprites/spells.png");
-    background-position: 0 0;
+    --w: var(--spell-width);
+    --h: var(--spell-height);
+    --frames: var(--spell-frames);
+    --duration: var(--spell-duration);
+    --sheet: var(--spell-sheet);
     z-index: 4;
+
+    /* Candy spins on the way up (the frame animation still runs) */
+    animation:
+        sprite-frames var(--duration) steps(var(--frames)) infinite,
+        spell-spin 0.5s linear infinite;
 }
 
-/* CSS Shape Placeholder */
+@keyframes spell-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .spell.placeholder {
     background: var(--accent);
-    background-image: none !important;
-
     border-radius: 50%;
 
     box-shadow:
@@ -272,7 +403,6 @@ button:focus-visible {
     animation: spell-pulse 0.3s ease-in-out infinite alternate;
 }
 
-/* Spell Pulsing Animation */
 @keyframes spell-pulse {
     from {
         transform: scale(0.65);
@@ -285,20 +415,118 @@ button:focus-visible {
     }
 }
 
-/* EXPLOSION EFFECTS */
+/* ENEMY SEEDS (enemy shots, CSS only) */
 
-.effect {
-    background-image: url("../assets/sprites/effects.png");
-    background-position: 0 0;
-    z-index: 5;
+.seed {
+    position: absolute;
+    width: 8px;
+    height: 14px;
+    z-index: 4;
+
+    background: var(--warning);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 0 0 8px rgba(255, 211, 78, 0.7);
+}
+
+/* Boss seeds are bigger and take on the boss's color */
+.seed.big {
+    background: var(--boss-color);
+    box-shadow: 0 0 10px var(--boss-color);
+}
+
+/* BOSS (every 10th level: one giant pumpkin) */
+
+.boss {
+    --w: var(--boss-width);
+    --h: var(--boss-height);
+    --frames: var(--boss-frames);
+    --duration: var(--boss-duration);
+    --sheet: var(--boss-sheet);
+    z-index: 2;
+
+    /* Glows in its level color and "breathes" while the frames play */
+    filter: drop-shadow(0 0 14px var(--boss-color));
+
+    animation:
+        sprite-frames var(--duration) steps(var(--frames)) infinite,
+        boss-breathe 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes boss-breathe {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.06);
+    }
+}
+
+.boss.placeholder {
+    background: var(--boss-color);
+    border-radius: 50%;
+    animation: boss-breathe 1.2s ease-in-out infinite alternate;
+}
+
+/* Boss health bar across the top of the board */
+.boss-bar {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    z-index: 6;
+    width: min(320px, 80%);
+    transform: translateX(-50%);
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    color: var(--boss-color);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+    text-transform: uppercase;
     pointer-events: none;
 }
 
-/* CSS Shape Placeholder */
+.boss-bar.hidden {
+    display: none;
+}
+
+.boss-bar-track {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--boss-color);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.boss-bar-fill {
+    width: 100%;
+    height: 100%;
+    background: var(--boss-color);
+    transition: width 0.1s linear;
+}
+
+/* EXPLOSION EFFECTS */
+
+.effect {
+    --w: var(--effect-width);
+    --h: var(--effect-height);
+    --frames: var(--effect-frames);
+    --duration: var(--effect-duration);
+    --sheet: var(--effect-sheet);
+    z-index: 5;
+    pointer-events: none;
+
+    /* Explosions play once, then JS removes them on animationend */
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
 .effect.placeholder {
     background: var(--warning);
-    background-image: none !important;
-
     border-radius: 50%;
 
     box-shadow:
@@ -308,7 +536,6 @@ button:focus-visible {
     animation: explosion-burst 0.4s ease-out forwards;
 }
 
-/* Explosion Animation */
 @keyframes explosion-burst {
     from {
         transform: scale(0.3);
@@ -317,6 +544,54 @@ button:focus-visible {
 
     to {
         transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* LEVEL BANNER */
+
+.level-banner {
+    position: absolute;
+    top: 45%;
+    left: 0;
+    right: 0;
+    z-index: 6;
+
+    color: var(--warning);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 0 0 14px rgba(255, 211, 78, 0.5);
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+.level-banner.show {
+    animation: banner-fade 2.2s ease-out forwards;
+}
+
+.level-banner.boss {
+    color: var(--boss-color);
+    font-size: 30px;
+    text-shadow: 0 0 18px var(--boss-color);
+}
+
+@keyframes banner-fade {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    15%,
+    70% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    100% {
         opacity: 0;
     }
 }
@@ -330,12 +605,14 @@ button:focus-visible {
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* "safe" keeps the top visible when the score list is taller than the board */
+    justify-content: safe center;
     align-items: center;
-    gap: 18px;
+    gap: 14px;
 
-    padding: 24px;
+    padding: 20px;
     text-align: center;
+    overflow-y: auto;
 
     background: rgba(8, 10, 27, 0.92);
     backdrop-filter: blur(5px);
@@ -362,9 +639,133 @@ button:focus-visible {
     line-height: 1.6;
 }
 
-/* START / RESTART BUTTON */
+/* HIGH SCORE NAME FORM */
 
-#start-button {
+.score-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(320px, 100%);
+
+    color: var(--warning);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.score-form.hidden,
+.no-scores.hidden {
+    display: none;
+}
+
+.score-form-row {
+    display: flex;
+    gap: 8px;
+}
+
+.score-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+
+    background: var(--surface);
+    color: var(--text);
+    border: 2px solid var(--warning);
+    border-radius: 6px;
+
+    font: inherit;
+    font-weight: normal;
+    letter-spacing: 0;
+}
+
+.score-form input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.score-form button {
+    padding: 10px 16px;
+
+    background: var(--warning);
+    color: #0b1022;
+    border: none;
+    border-radius: 6px;
+
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* HIGH SCORE LIST */
+
+.high-scores {
+    width: min(320px, 100%);
+}
+
+.high-scores h3 {
+    margin-bottom: 8px;
+
+    color: var(--primary);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.high-scores ol {
+    list-style-position: inside;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: left;
+}
+
+.high-scores li {
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.high-scores li:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* The score that was just saved */
+.high-scores li.new {
+    background: rgba(255, 211, 78, 0.18);
+    color: var(--warning);
+}
+
+.score-name {
+    color: var(--text);
+    font-weight: bold;
+}
+
+.high-scores li.new .score-name {
+    color: var(--warning);
+}
+
+.score-points {
+    float: right;
+    color: var(--accent);
+}
+
+.game-overlay .no-scores {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* START / RESTART BUTTONS */
+
+.start-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Player 2 button is orange to match the player 2 wizard */
+#start-two-button {
+    background: #ff9f43;
+}
+
+.start-button {
     padding: 14px 32px;
 
     background: var(--accent);
@@ -384,24 +785,23 @@ button:focus-visible {
         box-shadow 0.2s ease;
 }
 
-#start-button:hover {
+.start-button:hover {
     background: var(--primary);
     transform: translateY(-2px);
 
     box-shadow: 0 0 18px rgba(170, 145, 255, 0.4);
 }
 
-#start-button:active {
+.start-button:active {
     transform: translateY(0);
 }
 
 /* CONTROLS FOOTER */
 
 .game-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 15px;
 
     padding: 18px 5px;
 
@@ -409,6 +809,24 @@ button:focus-visible {
     font-size: 13px;
     font-weight: bold;
     letter-spacing: 1px;
+}
+
+.game-controls strong {
+    color: var(--text);
+}
+
+/* Turns green when a controller is plugged in */
+.controller-status {
+    color: var(--muted);
+}
+
+.controller-status.connected {
+    color: var(--success);
+}
+
+.game-overlay .controller-hint {
+    color: var(--success);
+    font-size: 14px;
 }
 
 /* RESPONSIVE DESIGN */
@@ -431,7 +849,7 @@ button:focus-visible {
     }
 
     .game-controls {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         gap: 8px;
         text-align: center;
     }

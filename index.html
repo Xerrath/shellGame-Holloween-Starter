@@ -22,8 +22,13 @@
                 </div>
 
                 <div class="hud-item">
+                    <span>Level</span>
+                    <strong id="level">1</strong>
+                </div>
+
+                <div class="hud-item">
                     <span>Time</span>
-                    <strong id="timer">30</strong>
+                    <strong id="timer">15</strong>
                 </div>
 
                 <div class="hud-item">
@@ -37,23 +42,63 @@
                 <div id="spell-container"></div>
                 <div id="effect-container"></div>
 
+                <!-- The wizards' pictures are set in game.js (look for "ADD YOUR WIZARD HERE"). -->
                 <div id="wizard" class="sprite wizard"></div>
+                <div id="wizard-two" class="sprite wizard player-two" hidden></div>
+
+                <p id="level-banner" class="level-banner" aria-live="polite"></p>
+
+                <!-- Boss health bar (only shows on boss levels: 10, 20, 30...) -->
+                <div id="boss-bar" class="boss-bar hidden">
+                    <span id="boss-bar-name">Boss</span>
+                    <div class="boss-bar-track">
+                        <div id="boss-bar-fill" class="boss-bar-fill"></div>
+                    </div>
+                </div>
 
                 <div id="game-overlay" class="game-overlay">
                     <h2 id="overlay-title">Wizard Invaders</h2>
                     <p id="overlay-message">
-                        Destroy the invaders before time runs out!
+                        Blast the pumpkin invaders with candy before time runs out. Clearing a level adds time. Every 10th level is a boss!
                     </p>
-                    <button id="start-button" type="button">
-                        Start Game
-                    </button>
+                    <!-- Shows after a game when the score makes the Top 10 -->
+                    <form id="score-form" class="score-form hidden">
+                        <label id="player-name-label" for="player-name">New high score! Enter your name:</label>
+                        <div class="score-form-row">
+                            <input id="player-name" type="text" maxlength="12" autocomplete="off" placeholder="Your name">
+                            <button type="submit">Save</button>
+                        </div>
+                    </form>
+
+                    <div class="start-buttons">
+                        <button id="start-button" class="start-button" type="button">
+                            1 Player
+                        </button>
+                        <button id="start-two-button" class="start-button" type="button">
+                            2 Players
+                        </button>
+                    </div>
+
+                    <!-- Only shows when a controller is plugged in -->
+                    <p id="controller-hint" class="controller-hint" hidden>
+                        Controller: press &#10005; / A for 1 Player, &#9651; / Y for 2 Players
+                    </p>
+
+                    <section class="high-scores">
+                        <h3>Top Scores</h3>
+                        <ol id="high-score-list"></ol>
+                        <p id="no-scores" class="no-scores">No scores yet. Be the first!</p>
+                    </section>
                 </div>
             </section>
 
             <footer class="game-controls">
-                <p>Move: A / D or Arrow Keys</p>
-                <p>Cast Spell: Spacebar</p>
+                <p><strong>Player 1:</strong> A / D to move, Space to cast</p>
+                <p><strong>Player 2:</strong> &larr; / &rarr; to move, Numpad 0 to cast</p>
+                <p><strong>Controller:</strong> left stick or D-pad to move, &#10005; / A or R2 / RT to cast</p>
+                <p id="controller-status" class="controller-status">No controllers connected</p>
             </footer>
+        </main>
 
         <script src="./game.js"></script>
     </body>
