@@ -69,13 +69,13 @@ const GAME = {
 */
 const SPRITES = {
     // ADD YOUR WIZARD HERE (player 1).
-    // Save a 4-frame sheet as Images/sheets/wizard.png, or change the path.
-    wizard: { path: "./Images/sheets/wizard.png", frames: 4, height: 48, fps: 8 },
+    // The blue wizard sheet has 4 frames, each 32px wide.
+    // height: 64 draws it at exactly 2x so the pixel art stays sharp.
+    wizard: { path: "./Images/sheets/BlueWizard.png", frames: 4, height: 64, fps: 8 },
 
     // ADD PLAYER 2's WIZARD HERE (2 player mode).
     // path: null means player 2 uses player 1's picture with a color tint.
-    // Example: { path: "./Images/sheets/wizard-two.png", frames: 4, height: 48, fps: 8 }
-    wizardTwo: { path: null, frames: 4, height: 48, fps: 8 },
+    wizardTwo: { path: "./Images/sheets/OrangeWizard.png", frames: 4, height: 64, fps: 8 },
 
     // ADD YOUR SPELL / AMMO HERE.
     // These are single pictures (frames: 1). A random one is picked each shot.
@@ -785,7 +785,7 @@ function updateSpells(dt) {
 
 // Move enemy seeds and check for wizard hits.
 function updateSeeds(dt) {
-    const targets = activePlayers().map(player => ({ player, box: hitbox(player, 0.75) }));
+    const targets = activePlayers().map(player => ({ player, box: hitbox(player, 0.6) }));
 
     for (let i = seeds.length - 1; i >= 0; i--) {
         const seed = seeds[i];
